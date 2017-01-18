@@ -176,19 +176,24 @@ console.log(actors);
 
 function  rentalPrice(){
 
-for (var i=0; i<rentals.length; i++){
+for (var i=0; i<rentals.length; i++){  // For each price of rentals[] we look for the corresponding id in cars[]
   for (var j= 0; j<cars.length; j++){
        if (rentals[i].carId == cars[j].id){
 
+         //the number of kilometers multiplied by the car's price per km
          var distance = cars[j].pricePerKm  * rentals[i].distance
 
+         //Creating the Date Object
          var dte1 = new Date (rentals[i].pickupDate);
          var dte2 = new Date(rentals[i].returnDate);
          var nbJours = ((dte2 - dte1)/86400000) +1;
+         //+1 : if the vehicle is rented in the morning and rendered in the evening, it is counted as one day
 
 
+         //the number of rental days multiplied by the car's price per day
          var time = nbJours * cars[j].pricePerDay;
 
+         //Exercice 2
          if (nbJours> 1 && nbJours<=4){
 
            time = nbJours * cars[j].pricePerDay*(1-0.1);
@@ -202,14 +207,19 @@ for (var i=0; i<rentals.length; i++){
              time = nbJours * cars[j].pricePerDay*(1-0.5);
          }
 
+
         rentals[i].price=distance+time;
 
-        rentals[i].commission.insurance=((rentals[i].price)*(0.3)) /2;
-        rentals[i].commission.assistance=nbJours;
-        rentals[i].commission.drivy=(rentals[i].commission.insurance) - (rentals[i].commission.assistance);
+        //Exercice3
+        //Drivy take a 30% commission on the rental price to cover their costs.
+        rentals[i].commission.insurance=((rentals[i].price)*(0.3)) /2; //half of commission
+        rentals[i].commission.assistance=nbJours; //1€ per day
+        rentals[i].commission.drivy=(rentals[i].commission.insurance) - (rentals[i].commission.assistance); //the rest
 
+        //Exercice4: Deductible optional reduction (boolean)
         if (rentals[i].options.deductibleReduction==true){
           rentals[i].price=rentals[i].price+ 4 * nbJours;
+          //The additional charge goes to drivy, not to the car owner
           rentals[i].commission.drivy=rentals[i].commission.drivy+ 4 * nbJours;
 
         }
@@ -238,19 +248,27 @@ function payment(){
 
         var time = nbJours * cars[j].pricePerDay;
 
+         //the driver must pay the rental price
          actors[z].payment[0].amount = time+distance;
 
+         //the owner receives the rental price minus the commission
          actors[z].payment[1].amount=(time+distance)-((time+distance)*0.3);
 
+         //the insurance receives its part of the commission
          actors[z].payment[2].amount= ((time+distance)*(0.3)) /2;
 
+         //the assistance receives its part of the commission
          actors[z].payment[3].amount= nbJours;
 
+         //drivy receives its part of the commission, plus the deductible reduction
          actors[z].payment[4].amount=(actors[z].payment[2].amount) - (actors[z].payment[3].amount);
+
 
          if (rentals[i].options.deductibleReduction==true){
 
+           //the driver must pay the (optional) deductible reduction
            actors[z].payment[0].amount = actors[z].payment[0].amount+ 4 * nbJours;
+           //The additional charge goes to drivy, not to the car owner
            actors[z].payment[4].amount=actors[z].payment[4].amount+4*nbJours;
          }
          }
